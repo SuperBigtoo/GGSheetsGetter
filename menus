@@ -1,0 +1,64 @@
+var ss = SpreadsheetApp.openByUrl("https://docs.google.com/spreadsheets/d/1zSRrZzV6sIxdb8nRGamx124526h4uFysVLcf38l--8U/edit");
+var sheet = ss.getSheetByName("menu");
+
+function doPost(e) {
+   
+  var data = JSON.parse(e.postData.contents)
+  var userMsg = data.originalDetectIntentRequest.payload.data.message.text;
+  var values = sheet.getRange(2, 1, sheet.getLastRow(),sheet.getLastColumn()).getValues();
+
+  for(var i = 0; i<values.length; i++){  
+    if(values[i][0] == userMsg ){
+      i=i+2;
+      var Detail = sheet.getRange(i,2).getValue();
+      var HowtoCook = sheet.getRange(i,3).getValue();
+      var Image = sheet.getRange(i,4).getValue();
+      var result01 = {
+        "fulfillmentMessages": [{
+          "platform": "line",
+          "type": 4,
+          "payload" : {
+            "line":{
+              "type":"flex",
+              "altText":userMsg,
+              "contents":{
+                "type":"bubble",
+                "size":"giga",
+                "hero": {
+                  "size": "full",
+                  "type": "image",
+                  "aspectRatio": "1.51:1",
+                  "aspectMode": "fit",
+                  "url": Image
+                }
+              }
+            }
+          }
+        },
+        {
+          "platform": "line",
+          "type": 4,
+          "payload" :{
+            "line":{
+              "type":"text",
+              "text":Detail
+            }
+          }
+        },
+        {
+          "platform": "line",
+          "type": 4,
+          "payload" :{
+            "line":{
+              "type":"text",
+              "text":HowtoCook
+            }
+          }
+        }
+        ]
+      }
+      var replyJSON01 = ContentService.createTextOutput(JSON.stringify(result01)).setMimeType(ContentService.MimeType.JSON);
+      return replyJSON01;
+    }
+  }
+}
